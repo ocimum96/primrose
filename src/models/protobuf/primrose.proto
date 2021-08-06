@@ -1,0 +1,124 @@
+syntax = "proto3";
+package primrose;
+
+service SbomService {
+    rpc Create(SbomCreateRequest) returns (Status);
+    rpc Get(SbomServiceGetByIdRequest) returns (SbomResponse);
+    rpc Update(SbomUpdateRequest) returns (Status);
+    rpc Delete(SbomDeleteRequest) returns (Status);
+}
+
+message Status {
+    int32 code = 1;//0-->OK, <0 Unknown, >0 Known err.
+    string msg = 2;
+}
+
+message SbomResponse {
+    string sbom = 1;
+    Status status = 2;
+}
+
+message SbomServiceGetByIdRequest {
+    string sbomID = 1;
+}
+
+message  SbomCreateRequest {
+    string content = 1;
+    string id = 2; //Force ID
+}
+
+message SbomUpdateRequest {
+    string id = 1;
+    string newSBomContent = 2;
+}
+
+message SbomDeleteRequest {
+    string id = 1;
+}
+
+// service genericCrudService {
+//     rpc Create(CreateRequest) returns (CreateResponse);
+//     rpc Get(GetRequest) returns (GetResponse);
+//     rpc Update(UpdateRequest) returns (UpdateResponse);
+//     rpc Delete(DeleteRequest) returns (DeleteResponse);
+// }
+
+// message CreateRequest {
+//     string type = 1;
+//     string content = 2;//JSON doc
+//     map<string, string> args = 3;
+// }
+
+// message CreateResponse{
+//     string id = 1;
+// }
+
+// message GetRequest {
+//     string type = 1;
+//     string id = 2;
+//     map<string, string> args = 3;
+// }
+
+// message GetResponse {
+//     string content = 1;
+// }
+
+// message UpdateRequest {
+//     string type = 1;
+//     string id = 2;
+//     string newContent = 3;
+//     map<string, string> args = 4;
+// }
+
+// message UpdateResponse {
+//     bool updateStatus = 1;
+// }
+
+// message DeleteRequest {
+//     string type = 1;
+//     string id = 2;
+//     map<string, string> args = 3;
+// }
+
+// message DeleteResponse {
+//     bool deleteStatus = 1;
+// }
+
+
+service MavenDocService {
+    rpc Create(MavenCreateRequest) returns (Status);
+    rpc Get(MavenGetRequest) returns (MavenGetRespose);
+    // rpc Update(MavenUpdateRequest) returns (Status);
+    rpc Delete(MavenDeleteRequest) returns (Status);
+    rpc GetByPURL(MavenGetByPURLRequest) returns (MavenGetRespose);
+}
+
+message MavenCreateRequest {
+    string groupID = 1;
+    string artifactID = 2;
+    string version = 3;
+    string purl = 4;
+    string id = 5; //Replace operation
+}
+
+message MavenGetByPURLRequest {
+    string purl = 1;
+}
+
+message MavenGetRequest {
+    string id = 1;
+}
+
+message MavenGetRespose {
+    string doc = 1;
+    Status status = 2;
+}
+
+// message MavenUpdateRequest {
+//     string id = 1;
+//     string content = 2;
+// }
+
+message MavenDeleteRequest {
+    string id = 1;
+}

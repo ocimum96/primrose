@@ -1,0 +1,5 @@
+__pycache__
+.vscode/
+src/config.json
+*.pyc 
+scratch.txt
