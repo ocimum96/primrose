@@ -1,18 +1,18 @@
 import unittest
 from models.maven import ModelLibrary
-import common as c
+from common import helpers
 
 
 class TestMavenModels(unittest.TestCase):
     
     @classmethod
     def setUpClass(cls):        
-        c.Helpers.init_es()
+        helpers.EShelper.init_es()
         ModelLibrary.init()
     
     @classmethod
     def tearDownClass(cls):        
-        c.Helpers.remove_connection()
+        helpers.EShelper.remove_connection()
     
     def setUp(self):
         self.libFlogger5 = ModelLibrary(group="com.google",artifacts="flogger",version="5.0") 

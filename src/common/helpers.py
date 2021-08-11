@@ -1,10 +1,11 @@
 from elasticsearch_dsl import connections
+import common.myapp as myapp
 
-class Helpers:
+class EShelper:
     
     @staticmethod
     def init_es():
-        connections.create_connection(hosts=['localhost:49154'])
+        connections.create_connection(hosts=[myapp.app.ConfigData["es"]["host"]])
     
     @staticmethod
     def remove_connection():
