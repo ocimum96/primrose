@@ -13,37 +13,47 @@ class TestCyclonedx(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):        
         helpers.EShelper.remove_connection()
+    
+    def setUp(self):
+        self.toDeleteDoc = []
+        self.toDeleteIndices = []
+        return super().setUp()
 
     def test_from_file(self):
         fileToTest = "sbom/ut_files/sbom1.json"
         p = Parser()
         p.indexname = "test-" + Parser.indexname
-        p.fromFile(fileToTest)
+        testDocId = "test-doc-1"
+        p.fromFile(fileToTest, id=testDocId)
+        self.toDeleteDoc.append(testDocId)
+
         i = Index(p.indexname)
         
         assert i.exists()
+        self.toDeleteIndices.append(p.indexname) 
 
         @i.document
         class doc(Document):
             serialNumber = Text()
         
-        s = i.search()
         serialNoToCheck = ""
         with open(fileToTest) as f:
             serialNoToCheck = json.loads(f.read())["serialNumber"]
         
-        r = s.execute()
+        fromEs = doc().get(testDocId)
         
-        assert s.count() > 0
+        assert fromEs is not None
 
-        for d in s:
-            assert d.serialNumber.__str__() == serialNoToCheck
+        assert fromEs.serialNumber.__str__() == serialNoToCheck
     
     def tearDown(self):
         i = Index("test-" + Parser.indexname)
         if (i.exists()):
-            s = i.search()
-            for d in s:
+            @i.document
+            class doc(Document):
+                serialNumber = Text()
+            dlist = doc.mget(self.toDeleteDoc)
+            for d in dlist:
                 d.delete()
         return super().tearDown()
 
