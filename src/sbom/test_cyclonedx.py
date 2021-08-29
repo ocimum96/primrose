@@ -1,7 +1,7 @@
 import unittest
 from common import helpers
 from sbom.cyclonedx import Parser 
-from elasticsearch_dsl import Index, Document, Text
+from elasticsearch_dsl import Index, Document, Text, Date
 import json
 
 class TestCyclonedx(unittest.TestCase):
@@ -22,9 +22,10 @@ class TestCyclonedx(unittest.TestCase):
     def test_from_file(self):
         fileToTest = "sbom/ut_files/sbom1.json"
         p = Parser()
-        p.indexname = "test-" + Parser.indexname
-        testDocId = "test-doc-1"
-        p.fromFile(fileToTest, id=testDocId)
+        p.indexname = "test-" + Parser.indexname        
+        testDocPurl = "sbom:cyclonedx/org.ocimum.primrose.sbom/cyclonedx@0.0.1"
+        testDocId = p.fromFile(fileToTest, purl=testDocPurl)
+        assert testDocId is not None
         self.toDeleteDoc.append(testDocId)
 
         i = Index(p.indexname)
@@ -35,6 +36,7 @@ class TestCyclonedx(unittest.TestCase):
         @i.document
         class doc(Document):
             serialNumber = Text()
+            created_at = Date()
         
         serialNoToCheck = ""
         with open(fileToTest) as f:
@@ -45,6 +47,8 @@ class TestCyclonedx(unittest.TestCase):
         assert fromEs is not None
 
         assert fromEs.serialNumber.__str__() == serialNoToCheck
+
+        assert fromEs.created_at is not None
     
     def tearDown(self):
         i = Index("test-" + Parser.indexname)
