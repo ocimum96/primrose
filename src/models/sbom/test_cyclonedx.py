@@ -1,6 +1,6 @@
 import unittest
 from common import helpers
-from sbom.cyclonedx import Parser 
+from models.sbom.cyclonedx import Parser 
 from elasticsearch_dsl import Index, Document, Text, Date
 import json
 
