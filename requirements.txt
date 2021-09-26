@@ -1,2 +1,5 @@
 # Elasticsearch 7.x
 elasticsearch-dsl>=7.0.0,<8.0.0
+grpcio
+grpcio-tools
+grpcio-reflection 

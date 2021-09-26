@@ -1,0 +1,14 @@
+syntax = "proto3";
+package primrose;
+
+service SbomService {
+    rpc Get(SbomServiceGetByIdRequest) returns (SbomResponse);
+}
+
+message SbomServiceGetByIdRequest {
+    string sbomID = 1;
+}
+
+message SbomResponse {
+    string sbom = 1;
+}
