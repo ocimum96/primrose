@@ -1,4 +1,5 @@
 from elasticsearch_dsl import connections
+from elasticsearch.exceptions import NotFoundError
 import json
 from datetime import datetime, timezone
 from common.logger import Logger
@@ -30,11 +31,15 @@ class Data:
     def get(self, id):
         l = Logger.getLogger(__name__)
         l.info("Get SBOM by ID {} ".format(id))
-        es = connections.get_connection()
-        res = es.get(index=Parser.indexname, id=id)
-        if res['found']:
-            l.info("Found document")
+        try:
+            es = connections.get_connection()
+            res = es.get(index=Parser.indexname, id=id)
             return res['_source']
-        else:            
-            l.info("Doc not found")
+        except NotFoundError as e:
+            l.info("Doc not found.")
+            l.debug(e)
+            return None
+        except Exception as e:
+            l.critical("Exception occured while ES call.")
+            l.debug(e)
             return None
