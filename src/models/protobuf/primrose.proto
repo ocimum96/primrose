@@ -2,7 +2,7 @@ syntax = "proto3";
 package primrose;
 
 service SbomService {
-    rpc Create(SbomCreateRequest) returns (SbomIDResponse);
+    rpc Create(SbomCreateRequest) returns (Status);
     rpc Get(SbomServiceGetByIdRequest) returns (SbomResponse);
     rpc Update(SbomUpdateRequest) returns (Status);
     rpc Delete(SbomDeleteRequest) returns (Status);
@@ -18,17 +18,13 @@ message SbomResponse {
     Status status = 2;
 }
 
-message SbomIDResponse {
-    string id = 1;
-    Status status = 2;
-}
-
 message SbomServiceGetByIdRequest {
     string sbomID = 1;
 }
 
 message  SbomCreateRequest {
     string content = 1;
+    string id = 2; //Force ID
 }
 
 message SbomUpdateRequest {
@@ -90,7 +86,7 @@ message SbomDeleteRequest {
 
 
 service MavenDocService {
-    rpc Create(MavenCreateRequest) returns (MavenCreateResponse);
+    rpc Create(MavenCreateRequest) returns (Status);
     rpc Get(MavenGetRequest) returns (MavenGetRespose);
     rpc Update(MavenUpdateRequest) returns (Status);
     rpc Delete(MavenDeleteRequest) returns (Status);
@@ -101,11 +97,6 @@ message MavenCreateRequest {
     string artifact = 2;
     string version = 3;
     string purl = 4;
-}
-
-message MavenCreateResponse {
-    string id = 1;
-    Status status = 2;
 }
 
 message MavenGetRequest {

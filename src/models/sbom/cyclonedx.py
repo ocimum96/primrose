@@ -3,9 +3,10 @@ from elasticsearch.exceptions import NotFoundError
 import json
 from datetime import datetime, timezone
 from common.logger import Logger
+from common.application import Application
 
 class Parser:
-    indexname = "sbom-cyclonedx"
+    indexname = Application.GetInstance().ConfigData["sbom"]["index"]
     timeStampField = "created_at"
 
     def __init__(self):
@@ -43,3 +44,39 @@ class Data:
             l.critical("Exception occured while ES call.")
             l.debug(e)
             return None
+    
+    def create(self, data, docId=None):
+        l = Logger.getLogger(__name__)
+        l.info("Creating SBOM..")
+        res = False
+        try:
+            es = connections.get_connection()
+            res = es.create(index=Parser.indexname, id=docId, body=data)
+        except Exception as e:
+            l.critical("ES: Create call failed.")
+            l.debug(e)
+        return res
+
+    def update(self, id, content):
+        l = Logger.getLogger(__name__)
+        l.info("Calling ES:Update..")
+        resp = False
+        try:
+            es = connections.get_connection()
+            resp = es.update(index=Parser.indexname, id=id, body=content)
+        except Exception as e:
+            l.critical("ES: Update call failed.")
+            l.debug(e)
+        return resp
+
+    def delete(self, id):
+        l = Logger.getLogger(__name__)
+        l.info("Calling ES:delete on id {}.".format(id))
+        res = False
+        try:
+            es = connections.get_connection()
+            res = es.delete(index=Parser.indexname, id=id)
+        except Exception as e:
+            l.critical("ES: Delete call failed.")
+            l.debug(e)
+        return res
