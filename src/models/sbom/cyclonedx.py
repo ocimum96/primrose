@@ -3,11 +3,10 @@ from elasticsearch.exceptions import NotFoundError
 import json
 from datetime import datetime, timezone
 from common.logger import Logger
-from common.application import Application
 
 class Parser:
-    indexname = Application.GetInstance().ConfigData["sbom"]["index"]
-    timeStampField = "created_at"
+    indexname = "sbom-cyclonedx"
+    timeStampField = "modified-at"
 
     def __init__(self):
         super().__init__()
@@ -17,7 +16,7 @@ class Parser:
             with open(filepath) as f:
                 content = f.read()
                 jsonContent = json.loads(content)                
-                jsonContent[Parser.timeStampField] = datetime.now(tz=timezone.utc).isoformat()
+                Parser.filtersBeforeUpdate(jsonContent)
                 if purl is not None:
                     jsonContent["purl"] = purl
                 r = es.index(index=self.indexname, body=jsonContent, id=id)
@@ -26,6 +25,10 @@ class Parser:
                     return idCreated
                 else:
                     return None
+    
+    @staticmethod
+    def filterBeforeUpdate(sbomDict):
+        sbomDict[Parser.timeStampField] = datetime.now(tz=timezone.utc).isoformat()
 
 
 class Data:
@@ -51,7 +54,9 @@ class Data:
         res = False
         try:
             es = connections.get_connection()
-            res = es.create(index=Parser.indexname, id=docId, body=data)
+            jsonContent = json.loads(data)
+            Parser.filterBeforeUpdate(jsonContent)
+            res = es.index(index=Parser.indexname, id=docId, body=jsonContent)
         except Exception as e:
             l.critical("ES: Create call failed.")
             l.debug(e)
@@ -63,7 +68,11 @@ class Data:
         resp = False
         try:
             es = connections.get_connection()
-            resp = es.update(index=Parser.indexname, id=id, body=content)
+            jsonContent = json.loads(content)
+            Parser.filterBeforeUpdate(jsonContent["doc"])
+            resp = es.update(index=Parser.indexname, id=id, body=json.dumps(jsonContent))
+        except KeyError as e:
+            l.fatal("Update format not correct. Key not found: " + e)
         except Exception as e:
             l.critical("ES: Update call failed.")
             l.debug(e)

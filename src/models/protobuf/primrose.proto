@@ -90,18 +90,23 @@ service MavenDocService {
     rpc Get(MavenGetRequest) returns (MavenGetRespose);
     rpc Update(MavenUpdateRequest) returns (Status);
     rpc Delete(MavenDeleteRequest) returns (Status);
+    rpc GetByPURL(MavenGetByPURLRequest) returns (MavenGetRespose);
 }
 
 message MavenCreateRequest {
-    string group = 1;
-    string artifact = 2;
+    string groupID = 1;
+    string artifactID = 2;
     string version = 3;
     string purl = 4;
+    string id = 5; //Replace operation
+}
+
+message MavenGetByPURLRequest {
+    string purl = 1;
 }
 
 message MavenGetRequest {
-    string key = 1; // id or purl
-    string value = 2;
+    string id = 1;
 }
 
 message MavenGetRespose {

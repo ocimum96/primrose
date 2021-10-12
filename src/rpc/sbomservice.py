@@ -23,10 +23,11 @@ class SbomServiceServicer(models.protobuf.primrose_pb2_grpc.SbomServiceServicer)
     def Create(self, request, context):
         l = Logger.getLogger(__name__)
         l.info("Called Create RPC.")
-        if request.id is not None:
+        if request.id or request.id != "" :
             l.debug("ID: {}".format(request.id)) 
         sbomData = SbomData()
-        res = sbomData.create(request.content, request.id if request.id is not "" else None )
+        res = sbomData.create(request.content,
+         request.id if request.id or request.id != "" else None )
         return models.protobuf.primrose_pb2.Status(code=0 if res else 2 )
 
     def Update(self, request, context):
