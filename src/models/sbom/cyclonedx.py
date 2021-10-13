@@ -60,6 +60,7 @@ class Data:
         except Exception as e:
             l.critical("ES: Create call failed.")
             l.debug(e)
+        l.info("ES:Create call returned " + str(res))
         return res
 
     def update(self, id, content):

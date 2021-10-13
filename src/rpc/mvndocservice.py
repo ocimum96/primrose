@@ -42,7 +42,8 @@ class MvnDocServiceServicer(models.protobuf.primrose_pb2_grpc.MavenDocServiceSer
             l.critical("Error on ES:save call.")
             l.debug(e)
         l.info("ES create call returned : {}".format(resp))
-        return models.protobuf.primrose_pb2.Status(code=1, msg=str(resp))
+        return models.protobuf.primrose_pb2.Status(code=0 if str(resp) == "created" or 
+        str(resp) == "updated" else 1, msg=str(resp))
 
     def Delete(self, request, context):
         l = Logger.getLogger(__name__)
