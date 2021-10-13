@@ -28,7 +28,8 @@ class SbomServiceServicer(models.protobuf.primrose_pb2_grpc.SbomServiceServicer)
         sbomData = SbomData()
         res = sbomData.create(request.content,
          request.id if request.id or request.id != "" else None )
-        return models.protobuf.primrose_pb2.Status(code=0 if res else 2 )
+        return models.protobuf.primrose_pb2.Status(code=0 if res["result"] == 'updated' or
+        res["result"] == "created" else 2 , msg = res["result"])
 
     def Update(self, request, context):
         l = Logger.getLogger(__name__)
