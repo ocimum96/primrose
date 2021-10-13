@@ -10,20 +10,19 @@ class MvnDocServiceServicer(models.protobuf.primrose_pb2_grpc.MavenDocServiceSer
         l = Logger.getLogger(__name__)
         l.info("Called RPC Get by id {}".format(request.id))
 
-        dataModel = MavenModel()
+        dataModel = None
         resp = models.protobuf.primrose_pb2.MavenGetRespose()
-        status = models.protobuf.primrose_pb2.Status(code=0)
+        # status = models.protobuf.primrose_pb2.Status(code=0)
         try:
-            dataModel.get(id=request.id)
-            print(dataModel.groupID)
-            resp.doc = dumps(dataModel.to_dict())
+            dataModel = MavenModel.get(id=request.id)
+            resp.doc = dumps(dataModel.to_dict(), default=str) 
         except Exception as e:
-            l.critical("Get called failed.")
+            l.critical("Get call failed.")
             l.debug(e)
-            status.msg = str(e)
-            status.code = 1
+            # status.msg = str(e)
+            # status.code = 1
         # resp.status = status        
-        l.debug("Got data: " + resp.doc)
+        l.debug("Returning data: " + resp.doc)
         return resp
     
     def Create(self, request, context):
@@ -42,3 +41,41 @@ class MvnDocServiceServicer(models.protobuf.primrose_pb2_grpc.MavenDocServiceSer
             l.debug(e)
         l.info("ES create call returned : {}".format(resp))
         return models.protobuf.primrose_pb2.Status(code=1, msg=str(resp))
+
+    def Delete(self, request, context):
+        l = Logger.getLogger(__name__)
+        l.info("Calling ES:Delete on {}".format(request.id))
+        dataModel = None
+        errCode = 0
+        errMsg = ""
+        try:
+            dataModel = MavenModel()
+            dataModel.meta.id = request.id
+            dataModel.delete()
+        except Exception as e:
+            l.critical("Delete call failed.")
+            l.debug(e)
+            errCode = 1
+            errMsg = str(e)
+
+        return models.protobuf.primrose_pb2.Status(code=errCode, msg=errMsg)
+
+    # def Update(self, request, context):
+    #     l = Logger.getLogger(__name__)
+    #     l.info("Calling ES:Update on {}".format(request.id))
+    #     l.debug(request.content)
+    #     dataModel = None
+    #     errCode = 0
+    #     errMsg = ""
+    #     try:
+    #         dataModel = MavenModel()
+    #         dataModel.meta.id = request.id
+    #         dataModel.update()
+    #     except Exception as e:
+    #         l.critical("Update call failed.")
+    #         l.debug(e)
+    #         errCode = 1
+    #         errMsg = str(e)
+
+    #     return models.protobuf.primrose_pb2.Status(code=errCode, msg=errMsg)
+        

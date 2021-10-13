@@ -88,7 +88,7 @@ message SbomDeleteRequest {
 service MavenDocService {
     rpc Create(MavenCreateRequest) returns (Status);
     rpc Get(MavenGetRequest) returns (MavenGetRespose);
-    rpc Update(MavenUpdateRequest) returns (Status);
+    // rpc Update(MavenUpdateRequest) returns (Status);
     rpc Delete(MavenDeleteRequest) returns (Status);
     rpc GetByPURL(MavenGetByPURLRequest) returns (MavenGetRespose);
 }
@@ -114,10 +114,10 @@ message MavenGetRespose {
     Status status = 2;
 }
 
-message MavenUpdateRequest {
-    string id = 1;
-    string content = 2;
-}
+// message MavenUpdateRequest {
+//     string id = 1;
+//     string content = 2;
+// }
 
 message MavenDeleteRequest {
     string id = 1;
