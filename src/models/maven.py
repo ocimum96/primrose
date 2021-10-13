@@ -3,6 +3,7 @@ from elasticsearch_dsl import Document, Nested, Boolean, \
     InnerDoc, Text, Date
 from common.logger import Logger
 from common.application import Application
+from packageurl import PackageURL
 
 
 class ModelDependencyLink(InnerDoc):
@@ -34,6 +35,7 @@ class ModelLibrary(Document):
     groupID = Text(required=True)
     artifactID = Text(required=True)
     version = Text(required=True)
+    purl = Text(required=True)
     fileType = Text() #POM or JAR
     versionInfo = Nested(VersionInfo)
     licenseInfo = [] #Array of LicenseInfo
@@ -53,6 +55,11 @@ class ModelLibrary(Document):
             print("GAV ID missing!!")
             return False
         self.lastModifiedAt = datetime.now(tz=timezone.utc).isoformat()
+        if not self.purl or self.purl == '':
+            purl = PackageURL(type="maven", namespace=self.groupID, name=self.artifactID,
+                version=self.version, qualifiers=None, subpath=None)
+            self.purl = purl.to_string()
+            l.debug("set PURL as {}".format(self.purl))
         l.info("Calling ES:save API...")
         resp = super().save(** kwargs)
         l.info("ES:Save returned: " + str(resp))

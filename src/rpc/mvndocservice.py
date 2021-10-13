@@ -33,6 +33,8 @@ class MvnDocServiceServicer(models.protobuf.primrose_pb2_grpc.MavenDocServiceSer
         if request.id or request.id != '' :
             l.info("Using ID :{}".format(request.id))
             dataModel.meta.id = request.id
+        if request.purl or request.purl != '' :
+            dataModel.purl = request.purl
         resp = ""
         try:
             resp = dataModel.save()
