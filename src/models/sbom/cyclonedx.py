@@ -31,26 +31,30 @@ class Parser:
         sbomDict[Parser.timeStampField] = datetime.now(tz=timezone.utc).isoformat()
 
 
-class Data:
-    def get(self, id):
-        l = Logger.getLogger(__name__)
-        l.info("Get SBOM by ID {} ".format(id))
+class Data:    
+
+    def __init__(self):
+        self.l = Logger.getLogger(__name__)
+        super().__init__()
+
+    def get(self, id):        
+        self.l.info("Get SBOM by ID {} ".format(id))
         try:
             es = connections.get_connection()
             res = es.get(index=Parser.indexname, id=id)
             return res['_source']
         except NotFoundError as e:
-            l.info("Doc not found.")
-            l.debug(e)
+            self.l.info("Doc not found.")
+            self.l.debug(e)
             return None
         except Exception as e:
-            l.critical("Exception occured while ES call.")
-            l.debug(e)
+            self.l.critical("Exception occured while ES call.")
+            self.l.debug(e)
             return None
+
     
-    def create(self, data, docId=None):
-        l = Logger.getLogger(__name__)
-        l.info("Creating SBOM..")
+    def create(self, data, docId=None):        
+        self.l.info("Creating SBOM..")
         res = False
         try:
             es = connections.get_connection()
@@ -58,14 +62,13 @@ class Data:
             Parser.filterBeforeUpdate(jsonContent)
             res = es.index(index=Parser.indexname, id=docId, body=jsonContent)
         except Exception as e:
-            l.critical("ES: Create call failed.")
-            l.debug(e)
-        l.info("ES:Create call returned " + str(res["result"]))
+            self.l.critical("ES: Create call failed.")
+            self.l.debug(e)
+        self.l.info("ES:Create call returned " + str(res["result"]))
         return res
 
-    def update(self, id, content):
-        l = Logger.getLogger(__name__)
-        l.info("Calling ES:Update..")
+    def update(self, id, content):        
+        self.l.info("Calling ES:Update..")
         resp = False
         try:
             es = connections.get_connection()
@@ -73,20 +76,19 @@ class Data:
             Parser.filterBeforeUpdate(jsonContent["doc"])
             resp = es.update(index=Parser.indexname, id=id, body=json.dumps(jsonContent))
         except KeyError as e:
-            l.fatal("Update format not correct. Key not found: " + e)
+            self.l.fatal("Update format not correct. Key not found: " + e)
         except Exception as e:
-            l.critical("ES: Update call failed.")
-            l.debug(e)
+            self.l.critical("ES: Update call failed.")
+            self.l.debug(e)
         return resp
 
-    def delete(self, id):
-        l = Logger.getLogger(__name__)
-        l.info("Calling ES:delete on id {}.".format(id))
+    def delete(self, id):        
+        self.l.info("Calling ES:delete on id {}.".format(id))
         res = False
         try:
             es = connections.get_connection()
             res = es.delete(index=Parser.indexname, id=id)
         except Exception as e:
-            l.critical("ES: Delete call failed.")
-            l.debug(e)
+            self.l.critical("ES: Delete call failed.")
+            self.l.debug(e)
         return res

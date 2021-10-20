@@ -43,7 +43,7 @@ class MvnDocServiceServicer(models.protobuf.primrose_pb2_grpc.MavenDocServiceSer
             l.debug(e)
         l.info("ES create call returned : {}".format(resp))
         return models.protobuf.primrose_pb2.Status(code=0 if str(resp) == "created" or 
-        str(resp) == "updated" else 1, msg=str(resp))
+        str(resp) == "updated" or resp == "exists" else 1, msg=str(resp))
 
     def Delete(self, request, context):
         l = Logger.getLogger(__name__)
