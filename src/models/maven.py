@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from elasticsearch_dsl import Document, Nested, Boolean, \
-    InnerDoc, Text, Date
+    InnerDoc, Text, Date, Q
 from common.logger import Logger
 from common.application import Application
 from packageurl import PackageURL
@@ -60,6 +60,33 @@ class ModelLibrary(Document):
                 version=self.version, qualifiers=None, subpath=None)
             self.purl = purl.to_string()
             l.debug("set PURL as {}".format(self.purl))
+
+        l.debug("PURL: {}".format(self.purl))
+        if not hasattr(self.meta, 'id'):
+            # no 'id' set, then its a create call not update call
+            # so if mvn doc already exists for this PURL, dont create new.
+            l.debug("Search for PURL if already exists: {}".format(self.purl))
+            q = Q({
+                    "bool": {
+                        "must": [
+                        {
+                            "match_phrase": {
+                            "purl": self.purl
+                            }
+                        }
+                        ]
+                    }
+                    })
+            s = ModelLibrary.search().query(q)
+            searchResponse = s.execute()
+            l.debug(s.to_dict())
+            l.debug("Search by PURL hit count : {}".format(str(searchResponse.hits.total.value)))
+            if searchResponse.hits.total.value > 0 :
+                l.info("MVN doc with PURL {} already exists. Skipping creation.".format(self.purl))
+                resp = "exists"
+                return resp        
+
+
         l.info("Calling ES:save API...")
         resp = super().save(** kwargs)
         l.info("ES:Save returned: " + str(resp))
