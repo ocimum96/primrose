@@ -9,5 +9,5 @@ if __name__ == '__main__':
     EShelper.init_es()
     MavenModel.init()
     l.info("Established ES connection.")
-    l.info("Starting GRPC server..")
+    l.info("GRPC server will start now..")
     GrpcServer().serve(1)
